@@ -2,11 +2,13 @@
 
 ## 🎯 Overview
 
-This repository contains three distinct implementations for evaluating AI systems using the **RAGAS** (Retrieval-Augmented Generation Assessment) framework. Each implementation targets different architectural patterns:
+This repository contains five distinct implementations for evaluating AI systems using the **RAGAS** (Retrieval-Augmented Generation Assessment) framework. Each implementation targets different architectural patterns and use cases:
 
 1. **LLM Pipeline**: Direct language model evaluation
 2. **RAG Pipeline**: Retrieval-Augmented Generation system evaluation
 3. **Agentic RAG Pipeline**: Multi-agent RAG system with LangGraph workflow
+4. **RAGAS with Loaded HuggingFace Models**: Evaluation using locally loaded models like Llama
+5. **RAGAS with MLFlow Tracking**: Self-RAG operations with comprehensive experiment tracking
 
 ## 📊 RAGAS Metrics Explained
 
@@ -149,6 +151,54 @@ graph TD
 - Built-in evaluation pipeline
 - Memory management with checkpointing
 
+### 4. RAGAS with Loaded HuggingFace Models
+
+```mermaid
+graph TD
+    A[Local Model Loading] --> B[Llama/HF Model]
+    B --> C[Custom Tokenizer]
+    C --> D[RAG Pipeline]
+    D --> E[RAGAS Evaluation]
+    E --> F[Performance Metrics]
+    
+    style A fill:#ffecb3,stroke:#ffa000
+    style B fill:#ffe082
+    style C fill:#ffcc02
+    style D fill:#ffb300
+    style E fill:#ff8f00
+    style F fill:#c8e6c9,stroke:#388e3c
+```
+
+**Key Features**:
+- Offline model evaluation
+- Custom HuggingFace model integration
+- Resource-efficient local processing
+- Supports various open-source models
+
+### 5. RAGAS with MLFlow Tracking
+
+```mermaid
+graph TD
+    A[Self-RAG Operation] --> B[MLFlow Experiment]
+    B --> C[Metric Logging]
+    C --> D[Parameter Tracking]
+    D --> E[Model Versioning]
+    E --> F[Dashboard Visualization]
+    
+    style A fill:#e8f5e8,stroke:#4caf50
+    style B fill:#c8e6c9
+    style C fill:#a5d6a7
+    style D fill:#81c784
+    style E fill:#66bb6a
+    style F fill:#c8e6c9,stroke:#388e3c
+```
+
+**Key Features**:
+- Comprehensive experiment tracking
+- Real-time metrics monitoring
+- Model performance comparison
+- Automated logging and visualization
+
 ## 📈 Performance Analysis
 
 ### Metric Interpretation Guide
@@ -174,6 +224,12 @@ graph LR
     G[Agentic RAG] --> H[Balanced All Metrics]
     G --> I[Consistent Performance]
     
+    J[Loaded Models] --> K[Offline Evaluation]
+    J --> L[Custom Performance]
+    
+    M[MLFlow Tracking] --> N[Historical Analysis]
+    M --> O[Trend Monitoring]
+    
     style A fill:#ffcdd2,stroke:#d32f2f
     style B fill:#ef9a9a
     style C fill:#ef9a9a
@@ -183,6 +239,12 @@ graph LR
     style G fill:#c8e6c9,stroke:#388e3c
     style H fill:#a5d6a7
     style I fill:#a5d6a7
+    style J fill:#ffecb3,stroke:#ffa000
+    style K fill:#ffe082
+    style L fill:#ffe082
+    style M fill:#e8f5e8,stroke:#4caf50
+    style N fill:#c8e6c9
+    style O fill:#c8e6c9
 ```
 
 ## 🔧 Implementation Details
@@ -212,6 +274,24 @@ class SetupChainState(TypedDict):
     llm: object
 ```
 
+#### Loaded Models Configuration
+```python
+class LoadedModelConfig:
+    MODEL_NAME = "meta-llama/Llama-2-7b-chat-hf"
+    DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+    MAX_LENGTH = 2048
+    TEMPERATURE = 0.7
+```
+
+#### MLFlow Configuration
+```python
+class MLFlowConfig:
+    EXPERIMENT_NAME = "RAGAS_Self_RAG_Evaluation"
+    TRACKING_URI = "http://localhost:5000"
+    ARTIFACT_PATH = "ragas_models"
+    REGISTERED_MODEL_NAME = "SelfRAG_Model"
+```
+
 ### Advanced Features
 
 #### 1. **Reranking in RAG Pipeline**
@@ -224,6 +304,17 @@ class SetupChainState(TypedDict):
 - Checkpointing for conversation continuity
 - Visual workflow representation
 
+#### 3. **Local Model Integration**
+- HuggingFace Transformers integration
+- Custom tokenization handling
+- Memory-efficient model loading
+
+#### 4. **MLFlow Experiment Tracking**
+- Automated metrics logging
+- Parameter and hyperparameter tracking
+- Model artifact management
+- Performance comparison dashboards
+
 ## 🚀 Getting Started
 
 ### Prerequisites
@@ -231,6 +322,8 @@ class SetupChainState(TypedDict):
 pip install langchain sentence-transformers faiss-cpu pypdf openai
 pip install langchain-community langchain-openai ragas datasets
 pip install pandas numpy langchain-huggingface langgraph
+pip install torch transformers accelerate  # For loaded models
+pip install mlflow  # For experiment tracking
 pip install jupyter  # For running .ipynb notebooks
 ```
 
@@ -251,10 +344,26 @@ pip install jupyter  # For running .ipynb notebooks
    jupyter notebook agentic_rag_evaluation.ipynb
    ```
 
+4. **RAGAS with Loaded Models**:
+   ```bash
+   jupyter notebook RAGAS-LoadedMODELS_LLAMA.ipynb
+   ```
+
+5. **RAGAS with MLFlow Tracking**:
+   ```bash
+   # Start MLFlow server
+   mlflow server --host 0.0.0.0 --port 5000
+   
+   # Run notebook
+   jupyter notebook RAGAS-MLFLow_RAG.ipynb
+   ```
+
 ### Environment Setup
 ```bash
 export OPENAI_API_KEY="your-openai-key"
 export GROQ_API_KEY="your-groq-key"  # For LLM pipeline
+export HUGGINGFACE_API_TOKEN="your-hf-token"  # For loaded models
+export MLFLOW_TRACKING_URI="http://localhost:5000"  # For MLFlow
 ```
 
 ## 📊 Evaluation Results Format
@@ -275,6 +384,12 @@ export GROQ_API_KEY="your-groq-key"  # For LLM pipeline
     "context_precision": 0.82,
     "context_recall": 0.76,
     "factual_correctness": 0.79
+  },
+  "mlflow_run_id": "abc123def456",  // For MLFlow tracked runs
+  "model_info": {
+    "model_name": "meta-llama/Llama-2-7b-chat-hf",
+    "device": "cuda",
+    "memory_usage": "6.2GB"
   }
 }
 ```
@@ -298,6 +413,16 @@ export GROQ_API_KEY="your-groq-key"  # For LLM pipeline
    - Requires workflow transparency
    - Research and development environments
 
+4. **Loaded Models Pipeline**:
+   - Offline evaluation requirements
+   - Custom model fine-tuning scenarios
+   - Resource-constrained environments
+
+5. **MLFlow Tracking Pipeline**:
+   - Experiment management and comparison
+   - Production model monitoring
+   - Team collaboration on model development
+
 ### Performance Optimization Tips
 
 1. **Improve Faithfulness**:
@@ -314,6 +439,16 @@ export GROQ_API_KEY="your-groq-key"  # For LLM pipeline
    - Adjust retrieval parameters
    - Implement hybrid search
    - Utilize reranking models
+
+4. **Optimize Loaded Models**:
+   - Quantization for memory efficiency
+   - Batch processing for throughput
+   - Custom tokenization strategies
+
+5. **Enhance MLFlow Tracking**:
+   - Structured experiment naming
+   - Comprehensive metric logging
+   - Regular model comparison
 
 ## 🔍 Troubleshooting
 
@@ -334,12 +469,24 @@ export GROQ_API_KEY="your-groq-key"  # For LLM pipeline
    - Use streaming for large documents
    - Implement checkpointing
 
+4. **Loaded Model Issues**:
+   - Check GPU memory availability
+   - Verify model compatibility
+   - Use appropriate quantization
+
+5. **MLFlow Connection Issues**:
+   - Ensure MLFlow server is running
+   - Check tracking URI configuration
+   - Verify network connectivity
+
 ## 📚 References
 
 - [RAGAS Documentation](https://docs.ragas.io): Comprehensive evaluation metrics for RAG systems
 - [RAGAS Framework](https://arxiv.org/abs/2306.10502): Reference-free evaluation methodology
 - [LangChain Documentation](https://python.langchain.com/docs): Building AI applications
 - [LangGraph Documentation](https://langchain-ai.github.io/langgraph): Multi-agent workflows
+- [MLFlow Documentation](https://mlflow.org/docs/latest/index.html): ML experiment tracking
+- [HuggingFace Transformers](https://huggingface.co/docs/transformers): Model loading and inference
 
 ## 🤝 Contributing
 
