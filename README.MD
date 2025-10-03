@@ -1,6 +1,6 @@
 # RAGAS Evaluation Framework: Comprehensive Analysis of LLM, RAG, and Agentic RAG Pipelines
 
-## 🎯 Overview
+## 🎯 Overview of the Repo
 
 This repository contains five distinct implementations for evaluating AI systems using the **RAGAS** (Retrieval-Augmented Generation Assessment) framework. Each implementation targets different architectural patterns and use cases:
 
